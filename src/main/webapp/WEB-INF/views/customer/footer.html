@@ -1,0 +1,26 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<th:block th:fragment="footer">
+    <textarea id="tempFooter" class="hide">
+        <button type="button" class="btn btn-secondary edit" title="Edit" data-toggle="tooltip">
+            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+            Update
+        </button>
+        <button type="button" class="btn btn-success deposit" title="Deposit" data-toggle="tooltip">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+            Deposit
+        </button>
+        <button type="button" class="btn btn-warning withdraw" title="Withdraw" data-toggle="tooltip">
+            <i class="fa fa-minus" aria-hidden="true"></i>
+            Withdraw
+        </button>
+        <button type="button" class="btn btn-primary transfer" title="Transfer" data-toggle="tooltip">
+            <i class="fa fa-exchange" aria-hidden="true"></i>
+            Transfer
+        </button>
+        <button type="button" class="btn btn-danger suspended" title="Suspended" data-toggle="tooltip">
+            <i class="fa fa-ban" aria-hidden="true"></i>
+            Suspended
+        </button>
+    </textarea>
+</th:block>

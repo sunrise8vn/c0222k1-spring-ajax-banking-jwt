@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>List</title>
+    <th:block th:replace="/layout/head :: head" />
+</head>
+<body>
+    <div class="main-container">
+        <header>
+            <div class="row">
+                <div class="col-sm-5">
+                    <h1>List of customers</h1>
+                </div>
+                <div class="col-sm-7">
+                    <a class="btn btn-outline-light create-modal">
+                        <i class="fa fa-plus-square-o" aria-hidden="true"></i>
+                        <span>Add New Customer</span>
+                    </a>
+                    <a href="/transfers" class="btn btn-outline-light">
+                        <i class="fa fa-history" aria-hidden="true"></i>
+                        <span>Transfer money Information</span>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <div class="box-body">
+
+            <input type="hidden" id="currentRow"/>
+
+            <table id="tbListCustomers" class="table table-hover">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>#</th>
+                    <th>FullName</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Balance</th>
+                    <th>Province</th>
+                    <th>District</th>
+                    <th>Ward</th>
+                    <th>Address</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr id="tr_1">
+                        <td></td>
+                        <td>1</td>
+                        <td>NVA</td>
+                        <td>nva@co.cc</td>
+                        <td>2345</td>
+                        <td>0</td>
+                        <td>TT Huế</td>
+                        <td>TP Huế</td>
+                        <td>Phường Phú Nhuận</td>
+                        <td>28 NTP</td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+    <!-- End .container -->
+
+    <div class="footer"></div>
+
+    <th:block th:replace="/customer/temp_row_customer :: temp_row_customer" />
+
+    <th:block th:replace="/customer/footer :: footer" />
+
+    <th:block th:replace="/customer/modal_create :: modal_create" />
+
+    <th:block th:replace="/customer/modal_update :: modal_update" />
+
+    <th:block th:replace="/customer/modal_deposit :: modal_deposit" />
+
+    <th:block th:replace="/customer/modal_transfer :: modal_transfer" />
+
+
+    <th:block th:replace="/layout/script :: script" />
+
+    <script>
+
+        let page = {
+            url: {
+                getAllProvinces: App.GET_ALL_PROVINCES,
+                getAllDistricts: App.GET_ALL_PROVINCES + "district/",
+                getAllWards: App.GET_ALL_PROVINCES + "ward/",
+
+                getAllCustomers: App.BASE_URL + "/customers",
+                getCustomerById: App.BASE_URL + "/customers",
+                getAllRecipientsWithoutSender: App.BASE_URL + "/customers/recipients-without-sender",
+                saveNew: App.BASE_URL + "/customers/create",
+                saveUpdate: App.BASE_URL + "/customers/update",
+                doDeposit: App.BASE_URL + "/customers/deposit",
+                doTransfer: App.BASE_URL + "/customers/transfer",
+            },
+            elements: {
+                locationRegion: {}
+            },
+            loadData: {},
+            commands: {},
+            dialogs: {
+                elements: {},
+                commands: {}
+            },
+            initializeControlEvents: {}
+        }
+
+        page.elements.btnShowCreateModal = $(".create-modal");
+        page.elements.btnShowUpdateModal = $("button.edit");
+
+        page.dialogs.elements.modalCreate = $("#modalCreateCustomer");
+        page.dialogs.elements.modalUpdate = $("#modalUpdateCustomer");
+        page.dialogs.elements.modalDeposit = $("#modalDeposit");
+
+        page.elements.locationRegion.province = $('#province');
+        page.elements.locationRegion.district = $('#district');
+        page.elements.locationRegion.ward = $('#ward');
+
+        let locationRegion = new LocationRegion();
+        let customer = new Customer();
+        let sender = new Sender();
+        let recipient = new Recipient();
+        let deposit = new Deposit();
+        let transfer = new Transfer();
+
+        let customerId = null;
+
+        let tempRowCustomer = $.validator.format($.trim($('#tempRowCustomer').val().toString()));
+
+        function addRowCustomer() {
+            $('#tbListCustomers tbody').prepend($(tempRowCustomer(customer.id, customer.fullName, customer.email, customer.phone, customer.balance, locationRegion.provinceName, locationRegion.districtName, locationRegion.wardName, locationRegion.address)));
+        }
+
+        function replaceRowCustomer() {
+            $('#tr_' + customer.id).replaceWith($(tempRowCustomer(customer.id, customer.fullName, customer.email, customer.phone, customer.balance, locationRegion.provinceName, locationRegion.districtName, locationRegion.wardName, locationRegion.address)));
+        }
+
+        // $('.create-modal').on('click', () => {
+        //     $('#modalCreateCustomer').modal('show');
+        // })
+
+        page.elements.btnShowCreateModal.on('click', () => {
+            page.dialogs.elements.modalCreate.modal("show");
+        });
+
+        page.commands.drawProvinces = () => {
+            return $.ajax({
+                "headers": {
+                    "accept": "application/json",
+                    "content-type": "application/json"
+                },
+                "type": "GET",
+                "url": page.url.getAllProvinces,
+            })
+            .done((data) => {
+                $.each(data.results, (i, item) => {
+                    let str = `<option value="${item.province_id}">${item.province_name}</option>`;
+
+                    $('#province').prepend(str);
+                    $('#provinceUp').prepend(str);
+                })
+            })
+            .fail((jqXHR) => {
+                App.IziToast.showErrorAlert('Không thể tải danh sách Tỉnh - Thành phố');
+            })
+        }
+
+        // function drawProvinces() {
+        //     return $.ajax({
+        //         "headers": {
+        //             "accept": "application/json",
+        //             "content-type": "application/json"
+        //         },
+        //         "type": "GET",
+        //         "url": page.url.getAllProvinces,
+        //     })
+        //     .done((data) => {
+        //         $.each(data.results, (i, item) => {
+        //             let str = `<option value="${item.province_id}">${item.province_name}</option>`;
+        //
+        //             $('#province').prepend(str);
+        //             $('#provinceUp').prepend(str);
+        //         })
+        //     })
+        //     .fail((jqXHR) => {
+        //         App.IziToast.showErrorAlert('Không thể tải danh sách Tỉnh - Thành phố');
+        //     })
+        // }
+
+        function drawDistricts(provinceId) {
+            return $.ajax({
+                "headers": {
+                    "accept": "application/json",
+                    "content-type": "application/json"
+                },
+                "type": "GET",
+                "url": page.url.getAllDistricts + provinceId,
+            })
+                .done((data) => {
+                    $('#district').html('');
+                    $('#districtUp').html('');
+
+                    if (data.results.length === 0) {
+                        App.IziToast.showErrorAlert('Không thể tải danh sách Quận - Phường - Huyện');
+                    }
+                    else {
+                        $.each(data.results, (i, item) => {
+                            let str = `<option value="${item.district_id}">${item.district_name}</option>`;
+
+                            $('#district').prepend(str);
+                            $('#districtUp').prepend(str);
+                        })
+                    }
+                });
+        }
+
+        function drawWards(districtId) {
+            return $.ajax({
+                "headers": {
+                    "accept": "application/json",
+                    "content-type": "application/json"
+                },
+                "type": "GET",
+                "url": page.url.getAllWards + districtId,
+            })
+            .done((data) => {
+                $('#ward').html('');
+                $('#wardUp').html('');
+
+                if (data.results.length === 0) {
+                    App.IziToast.showErrorAlert('Không thể tải danh sách xã - thị trấn');
+                }
+                else {
+                    $.each(data.results, (i, item) => {
+                        let str = `<option value="${item.ward_id}">${item.ward_name}</option>`;
+
+                        $('#ward').prepend(str);
+                        $('#wardUp').prepend(str);
+                    })
+                }
+            });
+        }
+
+        page.commands.drawProvinces().then(() => {
+            let provinceId = $('#province').val();
+            drawDistricts(provinceId).then(() => {
+                let districtId = $('#district').val();
+                drawWards(districtId);
+            });
+        });
+
+        function handleShowFooter() {
+            $("#tbListCustomers tbody tr").on('click', function () {
+                customerId = $(this).attr('id').replace('tr_', '');
+
+                let tempFooter = $.validator.format($.trim($('#tempFooter').val().toString()));
+
+                $('.footer').html(tempFooter);
+
+                handleShowUpdate();
+
+                handleShowDeposit();
+
+                handleShowTransfer();
+            });
+        }
+
+        function unbindAll() {
+            $("#tbListCustomers tbody tr").off();
+        }
+
+        $('#btnCreateCustomer').on('click', () => {
+            locationRegion.provinceId = page.elements.locationRegion.province.val();
+            locationRegion.provinceName = $('#province :selected').text();
+            locationRegion.districtId = page.elements.locationRegion.district.val();
+            locationRegion.districtName = $('#district :selected').text();
+            locationRegion.wardId = page.elements.locationRegion.ward.val();
+            locationRegion.wardName = $('#ward :selected').text();
+            locationRegion.address = $('#address').val();
+
+            customer.fullName = $('#fullName').val();
+            customer.email = $('#email').val();
+            customer.phone = $('#phone').val();
+            customer.locationRegion = locationRegion;
+
+            $.ajax({
+                "headers": {
+                    "accept": "application/json",
+                    "content-type": "application/json"
+                },
+                "type": "POST",
+                "url": page.url.saveNew,
+                "data": JSON.stringify(customer)
+            })
+            .done((data) => {
+                customer = data;
+                locationRegion = customer.locationRegion;
+
+                addRowCustomer();
+
+                $('#modalCreateCustomer').modal('hide');
+
+                App.SweetAlert.showSuccessAlert('Create customer success');
+
+                unbindAll();
+
+                handleShowFooter();
+
+            })
+            .fail((jqXHR) => {
+                $('#modalCreateCustomer .modal-alert-danger').html('').removeClass('hide').addClass('show');
+
+                if (jqXHR.responseJSON.message) {
+                    let msg = jqXHR.responseJSON.message;
+
+                    let str = `<label id="message-error" class="error" for="message">${msg}</label>`;
+
+                    $('#modalCreateCustomer .modal-alert-danger').append(str);
+                }
+                else if (jqXHR.responseJSON) {
+                    $.each(jqXHR.responseJSON, (key, item) => {
+                        let str = `<label id="${key}-error" class="error" for="${key}">${item}</label>`;
+                        $("#" + key).addClass("error");
+
+                        $('#modalCreateCustomer .modal-alert-danger').append(str);
+                    })
+                }
+            })
+        })
+
+        $('#btnUpdateCustomer').on('click', () => {
+            locationRegion.provinceId = $('#provinceUp').val();
+            locationRegion.provinceName = $('#provinceUp :selected').text();
+            locationRegion.districtId = $('#districtUp').val();
+            locationRegion.districtName = $('#districtUp :selected').text();
+            locationRegion.wardId = $('#wardUp').val();
+            locationRegion.wardName = $('#wardUp :selected').text();
+            locationRegion.address = $('#addressUp').val();
+
+            customer.id = customerId;
+            customer.fullName = $('#fullNameUp').val();
+            customer.email = $('#emailUp').val();
+            customer.phone = $('#phoneUp').val();
+            customer.locationRegion = locationRegion;
+
+            $.ajax({
+                "headers": {
+                    "accept": "application/json",
+                    "content-type": "application/json"
+                },
+                "type": "PUT",
+                "url": page.url.saveUpdate,
+                "data": JSON.stringify(customer)
+            })
+                .done((data) => {
+                    customer = data;
+                    locationRegion = customer.locationRegion;
+
+                    replaceRowCustomer();
+
+                    $('#modalUpdateCustomer').modal('hide');
+
+                    App.SweetAlert.showSuccessAlert('Update customer success');
+
+                    unbindAll();
+
+                    handleShowFooter();
+
+                })
+                .fail((jqXHR) => {
+                    console.log(jqXHR);
+                    $('#modalUpdateCustomer .modal-alert-danger').html('').removeClass('hide').addClass('show');
+
+                    if (jqXHR.status === 401) {
+                        let msg = "Vui lòng đăng nhập !!";
+
+                        let str = `<label id="message-error" class="error" for="message">${msg}</label>`;
+
+                        $('#modalUpdateCustomer .modal-alert-danger').append(str);
+                    }
+                    else {
+                        if (jqXHR.status === 403) {
+                            let msg = "Bạn không đủ quyền để thực hiện chức năng này !!";
+
+                            let str = `<label id="message-error" class="error" for="message">${msg}</label>`;
+
+                            $('#modalUpdateCustomer .modal-alert-danger').append(str);
+                        }
+                        else {
+                            if (jqXHR.responseJSON.message) {
+                                let msg = jqXHR.responseJSON.message;
+
+                                let str = `<label id="message-error" class="error" for="message">${msg}</label>`;
+
+                                $('#modalUpdateCustomer .modal-alert-danger').append(str);
+                            }
+                            else if (jqXHR.responseJSON) {
+                                $.each(jqXHR.responseJSON, (key, item) => {
+                                    let str = `<label id="${key}-error" class="error" for="${key}">${item}</label>`;
+                                    $("#" + key).addClass("error");
+
+                                    $('#modalUpdateCustomer .modal-alert-danger').append(str);
+                                })
+                            }
+                        }
+                    }
+
+
+                })
+        });
+
+        $('#btnDepositMoney').on('click', () => {
+            delete deposit.id;
+            deposit.customerId = $('#customerIdDep').val();
+            deposit.transactionAmount = $('#transactionAmountDep').val();
+
+            $.ajax({
+                type: "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                url: page.url.doDeposit,
+                data: JSON.stringify(deposit)
+            })
+                .done((resp) => {
+                    console.log("Done");
+                    console.log(resp);
+                })
+                .fail((jqXHR) => {
+                    console.log("jqXHR");
+                    console.log(jqXHR);
+
+                    $('#modalDeposit .modal-alert-danger').html('').removeClass('hide').addClass('show');
+
+                    if (jqXHR.responseJSON.message) {
+                        let msg = jqXHR.responseJSON.message;
+
+                        let str = `<label id="message-error" class="error" for="message">${msg}</label>`;
+
+                        $('#modalDeposit .modal-alert-danger').append(str);
+                    }
+                    else if (jqXHR.responseJSON) {
+                        $.each(jqXHR.responseJSON, (key, item) => {
+                            let str = `<label id="${key}-error" class="error" for="${key}">${item}</label>`;
+                            $("#" + key).addClass("error");
+
+                            $('#modalDeposit .modal-alert-danger').append(str);
+                        })
+                    }
+                })
+        })
+
+        $('#btnTransferMoney').on('click', () => {
+            delete transfer.id;
+            transfer.senderId = $('#senderIdTrf').val();
+            transfer.recipientId = $('#recipientIdTrf').val();
+            transfer.transferAmount = $('#transferAmountTrf').val();
+
+            $.ajax({
+                type: "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                url: page.url.doTransfer,
+                data: JSON.stringify(transfer)
+            })
+                .done((resp) => {
+
+                    customer = resp.sender;
+                    replaceRowCustomer();
+
+                    customer = resp.recipient;
+                    replaceRowCustomer();
+
+                    $('#modalTransfer').modal('hide');
+                })
+                .fail((jqXHR) => {
+                    console.log("jqXHR");
+                    console.log(jqXHR);
+
+                    $('#modalTransfer .modal-alert-danger').html('').removeClass('hide').addClass('show');
+
+                    if (jqXHR.responseJSON.message) {
+                        let msg = jqXHR.responseJSON.message;
+
+                        let str = `<label id="message-error" class="error" for="message">${msg}</label>`;
+
+                        $('#modalTransfer .modal-alert-danger').append(str);
+                    }
+                    else if (jqXHR.responseJSON) {
+                        $.each(jqXHR.responseJSON, (key, item) => {
+                            let str = `<label id="${key}-error" class="error" for="${key}">${item}</label>`;
+                            $("#" + key).addClass("error");
+
+                            $('#modalTransfer .modal-alert-danger').append(str);
+                        })
+                    }
+                })
+        })
+
+        page.commands.provinceChange = () => {
+            page.elements.locationRegion.province.on('change', () => {
+                let provinceId = $('#province').val();
+
+                drawDistricts(provinceId).then(() => {
+                    let districtId = $('#district').val();
+                    drawWards(districtId);
+                });
+            });
+        }
+
+
+        $("#provinceUp").on('change', () => {
+            let provinceId = $('#provinceUp').val();
+
+            drawDistricts(provinceId).then(() => {
+                let districtId = $('#districtUp').val();
+                drawWards(districtId);
+            });
+        });
+
+        page.elements.locationRegion.district.on('change', () => {
+            let districtId = $('#district').val();
+            drawWards(districtId);
+        });
+
+        $("#districtUp").on('change', () => {
+            let districtId = $('#districtUp').val();
+            drawWards(districtId);
+        });
+
+        $("#transferAmountTrf").on("input", function () {
+            let transferAmount = +$(this).val();
+            let fees = 10;
+            let feesAmount = transferAmount * fees / 100;
+            let transactionAmount = transferAmount + feesAmount;
+
+            $("#transactionAmountTrf").val(transactionAmount);
+        })
+
+        function handleShowUpdate() {
+            $('button.edit').on('click', () => {
+
+                $.ajax({
+                    headers: {
+                        "accept": "application/json",
+                        "content-type": "application/json"
+                    },
+                    type: "GET",
+                    url: page.url.getCustomerById + "/" + customerId
+                })
+                    .done((data) => {
+                        customer = data;
+                        locationRegion = customer.locationRegion;
+
+                        $('#fullNameUp').val(customer.fullName);
+                        $('#emailUp').val(customer.email);
+                        $('#phoneUp').val(customer.phone);
+
+                        $('#provinceUp').val(locationRegion.provinceId);
+
+                        drawDistricts(locationRegion.provinceId).then(() => {
+                            $('#districtUp').val(locationRegion.districtId);
+
+                            drawWards(locationRegion.districtId).then(() => {
+                                $('#wardUp').val(locationRegion.wardId);
+                            });
+                        });
+
+                        $('#addressUp').val(locationRegion.address);
+
+                        $('#modalUpdateCustomer').modal('show');
+                    })
+                    .fail((jqXHR) => {
+                        if (jqXHR.status === 401) {
+                            App.SweetAlert.showErrorAlert("Vui lòng đăng nhập");
+                        }
+                        else {
+                            if (jqXHR.status === 403) {
+                                App.SweetAlert.showErrorAlert("Bạn không đủ quyền để thực hiện chức năng này");
+                            }
+                            else {
+                                App.SweetAlert.showErrorAlert(jqXHR.responseJSON.message);
+                            }
+                        }
+                    })
+            });
+        }
+
+        function handleShowDeposit() {
+            $('button.deposit').on('click', () => {
+
+                $.ajax({
+                    headers: {
+                        "accept": "application/json",
+                        "content-type": "application/json"
+                    },
+                    type: "GET",
+                    url: page.url.getCustomerById + "/" + customerId
+                })
+                .done((data) => {
+                    customer = data;
+                    $('#customerIdDep').val(customer.id);
+                    $('#fullNameDep').val(customer.fullName);
+                    $('#balanceDep').val(customer.balance);
+                    $('#modalDeposit').modal('show');
+                })
+                .fail((jqXHR) => {
+                    App.SweetAlert.showErrorAlert(jqXHR.responseJSON.message);
+                    console.log(jqXHR);
+                })
+            });
+        }
+
+        function handleShowTransfer() {
+            $('button.transfer').on('click', () => {
+
+                $.ajax({
+                    headers: {
+                        "accept": "application/json",
+                        "content-type": "application/json"
+                    },
+                    type: "GET",
+                    url: page.url.getCustomerById + "/" + customerId
+                })
+                    .done((data) => {
+                        customer = data;
+
+                        drawRecipients(customerId);
+
+                        $('#senderIdTrf').val(customer.id);
+                        $('#senderNameTrf').val(customer.fullName);
+                        $('#emailTrf').val(customer.email);
+                        $('#balanceTrf').val(customer.balance);
+                        $('#modalTransfer').modal('show');
+                    })
+                    .fail((jqXHR) => {
+                        App.SweetAlert.showErrorAlert(jqXHR.responseJSON.message);
+                        console.log(jqXHR);
+                    })
+            });
+        }
+
+        function drawRecipients(customerId) {
+            $.ajax({
+                "headers": {
+                    "accept": "application/json",
+                    "content-type": "application/json"
+                },
+                "type": "GET",
+                "url": page.url.getAllRecipientsWithoutSender + "/" + customerId
+            })
+            .done((data) => {
+                $('#recipientIdTrf').html('');
+
+                $.each(data, (i, item) => {
+                    recipient = item;
+
+                    let str = `
+                        <option value="${recipient.id}">(${recipient.id}) - ${recipient.fullName}</option>
+                    `;
+
+                    $('#recipientIdTrf').append(str);
+                })
+            })
+            .fail((jqXHR) => {
+                console.log(jqXHR);
+            })
+        }
+
+        page.loadData.getAllCustomers = () => {
+            $.ajax({
+                "headers": {
+                    "accept": "application/json",
+                    "content-type": "application/json"
+                },
+                "type": "GET",
+                url: page.url.getAllCustomers
+            })
+                .done((data) => {
+                    $('#tbListCustomers tbody').html('');
+
+                    $.each(data, (i, item) => {
+                        customer = item;
+                        customer.balance = App.formatNumberSpace(customer.balance);
+                        locationRegion = customer.locationRegion;
+
+                        addRowCustomer();
+                    });
+
+                    handleShowFooter();
+                })
+                .fail((jqXHR) => {
+                    console.log(jqXHR);
+                })
+        }
+
+        App.formatNumber();
+
+        page.initializeControlEvents = () => {
+            page.commands.provinceChange();
+        }
+
+        $(() => {
+            page.loadData.getAllCustomers();
+
+            page.initializeControlEvents();
+        })
+
+    </script>
+</body>
+</html>

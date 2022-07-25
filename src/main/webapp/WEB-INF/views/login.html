@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,300">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="/assets/css/iziToast-1.4.0.min.css">
+    <link rel="stylesheet" href="/assets/css/login.css">
+</head>
+<body>
+    <div class="cotn_principal">
+        <div class="cont_centrar">
+
+            <div class="cont_login">
+                <div class="cont_info_log_sign_up">
+                    <div class="col_md_login">
+                        <div class="cont_ba_opcitiy">
+                            <h2>LOGIN</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                            <button class="btn_login" onclick="cambiar_login()">LOGIN</button>
+                        </div>
+                    </div>
+                    <div class="col_md_sign_up">
+                        <div class="cont_ba_opcitiy">
+                            <h2>SIGN UP</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                            <button class="btn_sign_up" onclick="cambiar_sign_up()">SIGN UP</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cont_back_info">
+                    <div class="cont_img_back_grey">
+                        <img src="/assets/img/bg_login.jpg" alt="" />
+                    </div>
+                </div>
+                <div class="cont_forms" >
+                    <div class="cont_img_back_">
+                        <img src="/assets/img/bg_login.jpg" alt="" />
+                    </div>
+                    <div class="cont_form_login">
+                        <a href="#" onclick="ocultar_login_sign_up()" >
+                            <i class="material-icons">&#xE5C4;</i>
+                        </a>
+                        <h2>LOGIN</h2>
+                        <input type="email" id="username" name="username" placeholder="Username" />
+                        <input type="password" id="password" name="password" placeholder="Password" />
+                        <button id="btn_login" class="btn_login">LOGIN</button>
+                    </div>
+
+                    <div class="cont_form_sign_up">
+                        <a href="#" onclick="ocultar_login_sign_up()">
+                            <i class="material-icons">&#xE5C4;</i>
+                        </a>
+                        <h2>SIGN UP</h2>
+                        <select name="role" id="role" class="form-select">
+                            <option value="1">ADMIN</option>
+                            <option value="2">USER</option>
+                        </select>
+                        <input type="text" id="usernameReg" name="usernameReg" placeholder="Username" />
+                        <input type="password" id="passwordReg" name="passwordReg" placeholder="Password" />
+                        <input type="password" id="rePasswordReg" placeholder="Confirm Password" />
+                        <button id="btn_sign_up" class="btn_sign_up">SIGN UP</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/login.js"></script>
+    <script src="/assets/js/jquery-3.6.0.min.js"></script>
+    <script src="/assets/js/iziToast-1.4.0.js"></script>
+    <script src="/assets/js/app.js"></script>
+
+    <script>
+
+        let btnLogin = $("#btn_login");
+
+        btnLogin.on("click", () => {
+            let username = $("#username").val();
+            let password = $("#password").val();
+
+            let user = {
+                username: username,
+                password: password
+            }
+
+            $.ajax({
+                "headers": {
+                    "accept": "application/json",
+                    "content-type": "application/json"
+                },
+                "type": "POST",
+                "url": "http://localhost:8089/api/auth/login",
+                "data": JSON.stringify(user)
+            })
+                .done((data) => {
+                    App.IziToast.showSuccessAlert("Login successful");
+
+                    window.location.href = "/customers";
+                })
+                .fail((jqXHR) => {
+                    App.IziToast.showErrorAlert("Login error");
+                })
+        })
+
+        let btnRegister = $("#btn_sign_up");
+
+        btnRegister.on("click", () => {
+            let username = $("#usernameReg").val();
+            let password = $("#passwordReg").val();
+            let roleId = $("#role").val();
+
+            let user = {
+                username: username,
+                password: password,
+                role: {
+                    id: roleId
+                }
+            }
+
+            $.ajax({
+                "headers": {
+                    "accept": "application/json",
+                    "content-type": "application/json"
+                },
+                "type": "POST",
+                "url": "http://localhost:8089/api/auth/register",
+                "data": JSON.stringify(user)
+            })
+            .done((data) => {
+                $("#username").val($("#usernameReg").val());
+                $("#password").val($("#passwordReg").val());
+
+                App.IziToast.showSuccessAlert("Register successful");
+
+                cambiar_login();
+            })
+            .fail((jqXHR) => {
+                App.IziToast.showErrorAlert("Register error");
+            })
+        });
+
+    </script>
+
+</body>
+</html>

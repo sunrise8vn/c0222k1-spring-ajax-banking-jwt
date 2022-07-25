@@ -1,0 +1,84 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<th:block th:fragment="modal_transfer">
+    <div id="modalTransfer" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Transfer money Information</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-alert-danger hide"></div>
+                    <form id="frmTransfer" method="post">
+                        <fieldset class="mt-3 g-3">
+                            <div class="form-group row">
+                                <div class="mb-3 col-md-4">
+                                    <label class="col-sm-12 col-form-label">Sender ID</label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" id="senderIdTrf" name="senderIdTrf" readonly>
+                                    </div>
+                                </div>
+                                <div class="mb-3 col-md-4">
+                                    <label class="col-sm-12 col-form-label">Sender Name</label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" id="senderNameTrf" name="senderNameTrf" readonly>
+                                    </div>
+                                </div>
+                                <div class="mb-3 col-md-4">
+                                    <label class="col-sm-12 col-form-label">Email</label>
+                                    <div class="col-sm-12">
+                                        <input type="email" class="form-control" id="emailTrf" name="emailTrf" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="mb-3 col-md-6">
+                                    <label class="col-sm-12 col-form-label">Sender balance</label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control num-space" id="balanceTrf" name="balanceTrf" readonly>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3 col-md-6">
+                                    <label class="col-sm-12 col-form-label">Recipient Name</label>
+                                    <div class="col-sm-12">
+                                        <select class="form-select" id="recipientIdTrf" name="recipientIdTrf"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="mb-3 col-md-4">
+                                    <label class="col-sm-12 col-form-label">Transfer Amount ($)</label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control num-point" id="transferAmountTrf" name="transferAmountTrf">
+                                    </div>
+                                </div>
+                                <div class="mb-3 col-md-4">
+                                    <label class="col-sm-12 col-form-label">Fees (%)</label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control num-space" id="feesTrf" name="feesTrf" value="10" readonly>
+                                    </div>
+                                </div>
+                                <div class="mb-3 col-md-4">
+                                    <label class="col-sm-12 col-form-label">Total amount of transaction ($)</label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control num-space" id="transactionAmountTrf" name="transactionAmountTrf" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" id="btnTransferMoney" class="btn btn-outline-primary">
+                        <i class="fa fa-exchange" aria-hidden="true"></i>
+                        Transfer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</th:block>

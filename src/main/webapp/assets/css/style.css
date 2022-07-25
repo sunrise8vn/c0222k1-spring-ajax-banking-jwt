@@ -1,0 +1,181 @@
+body {
+    margin: 0 auto;
+}
+
+a {
+    /*color: #3c8dbc !important;*/
+    text-decoration: none;
+}
+
+a.delete:hover {
+    color: red !important;
+}
+
+.message{
+    color:green;
+}
+
+label.error{
+    margin-top: 5px;
+    color: #842029;
+}
+
+.table > tbody > tr > td {
+    vertical-align: middle;
+}
+
+form {
+    margin-block-end: 1em;
+}
+
+table th {
+    background-color: #4CAF50 !important;
+    color: #fff;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+table thead th {
+    border: 0 solid #ddd;
+}
+
+table tbody td {
+    border: 0 solid #ddd;
+}
+
+table tr:nth-child(even) {
+    /*background-color: #f2f2f2;*/
+}
+
+table td span.select-tab {
+    border-left-width: 7px;
+    border-left-style: solid;
+    min-width: 0;
+    display: block;
+    height: 24px;
+    margin: 0 0 0 -4px;
+    padding: 0;
+}
+
+table td span.selected {
+    border-left-color: #5cb85c;
+}
+
+table td span.unselected {
+    border-left-color: #dfdfdf;
+}
+
+form label {
+    font-weight: bold;
+}
+
+#container {
+    padding-bottom: 25px;
+}
+
+.main-container {
+    padding-bottom: 50px;
+}
+
+#fading-header{
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    right: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    opacity: .95;
+}
+
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 50px;
+    padding-top: 6px;
+    padding-left: 50px;
+    padding-right: 50px;
+    background: #7abde8;
+    color: #ffffff;
+}
+
+.footer button {
+    margin-right: 15px;
+}
+
+#message-alert {
+    width: 100vw;
+    position: fixed;
+    bottom: 0;
+}
+
+.alert-success {
+    padding: 1rem 135px;
+}
+
+.alert-danger {
+    padding: 1rem 135px;
+}
+
+.modal-alert-danger {
+    padding: 10px 35px;
+    margin-bottom: 15px;
+    color: #842029;
+    background-color: #f8d7da;
+    border-color: #f5c2c7;
+}
+
+.alert-danger h5 {
+    margin-left: -18px;
+}
+
+.alert-danger ul {
+    margin-left: -2rem;
+}
+
+#close {
+    top: 5px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #d91515;
+    cursor: pointer;
+    right: 65px;
+    position: absolute;
+}
+
+header {
+    background: #299be4;
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 3px 3px 0 0;
+}
+
+header .btn {
+    float: right;
+    min-width: 50px;
+    outline: none !important;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+.pr-20 {
+    padding-right: 20px !important;
+}
+
+.show {
+    display: block !important;
+}
+
+.hide {
+    display: none;
+}
+
+label.error {
+    display: list-item;
+}
+
+input.error {
+    border: solid 1px red;
+}
